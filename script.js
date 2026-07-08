@@ -204,7 +204,6 @@ const introScreen = el("intro"), wizardScreen = el("wizard"), resultsScreen = el
 /* ============================================================
    Intro
    ============================================================ */
-el("introVisual").innerHTML = readinessWheelSVG();
 el("startBtn").addEventListener("click", () => {
   introScreen.hidden = true;
   wizardScreen.hidden = false;
@@ -244,7 +243,7 @@ function render() {
 
   // progress: count only the 15 scored questions, per the intro promise;
   // cap at 95% until results show (C10: a full bar before the gate reads dishonest)
-  el("progressFill").style.width = `${Math.min((current / (TOTAL_Q - 1)) * 100, 95)}%`;
+  el("progressFill").style.width = `${Math.min(Math.max((current / (TOTAL_Q - 1)) * 100, 5), 95)}%`;
   if (step.kind === "maturity") {
     const qNum = STEPS.slice(0, current + 1).filter(s => s.kind === "maturity").length;
     el("progressLabel").textContent = `Question ${qNum} of 15`;
@@ -426,7 +425,10 @@ function goPrev() {
 }
 
 function scrollStageTop() {
-  if (window.innerWidth <= 860) window.scrollTo({ top: 0, behavior: "smooth" });
+  if (window.innerWidth <= 860) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  }
 }
 
 el("nextBtn").addEventListener("click", goNext);
@@ -611,49 +613,6 @@ function radarSVG(dims) {
     ${rings}${spokes}
     <polygon points="${dataPts}" fill="#88DBBD" fill-opacity="0.45" stroke="#2F1541" stroke-width="2"/>
     ${dots}${labels}
-  </svg>`;
-}
-
-function readinessWheelSVG() {
-  // website AI Readiness Wheel, verbatim from ../AI Readiness Wheel/AI_Readiness_Wheel.svg
-  // (font @import dropped — the page already loads Space Grotesk)
-  return `<svg viewBox="0 0 460 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The six dimensions of AI readiness">
-    <defs>
-      <style>
-        .seg { fill: #F2F0EE; stroke: #ffffff; stroke-width: 2; }
-        .seg-label { font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; font-weight: 500; fill: #2F1541; }
-        .seg-num { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 500; fill: #2F1541; }
-        .center-bg { fill: #2F1541; }
-        .center-text { font-family: 'Space Grotesk', sans-serif; fill: #88DBBD; }
-      </style>
-    </defs>
-    <path class="seg" d="M 230 30 A 200 200 0 0 1 403.21 130 L 297.55 191 A 78 78 0 0 0 230 152 Z"/>
-    <path class="seg" d="M 403.21 130 A 200 200 0 0 1 403.21 330 L 297.55 269 A 78 78 0 0 0 297.55 191 Z"/>
-    <path class="seg" d="M 403.21 330 A 200 200 0 0 1 230 430 L 230 308 A 78 78 0 0 0 297.55 269 Z"/>
-    <path class="seg" d="M 230 430 A 200 200 0 0 1 56.79 330 L 162.45 269 A 78 78 0 0 0 230 308 Z"/>
-    <path class="seg" d="M 56.79 330 A 200 200 0 0 1 56.79 130 L 162.45 191 A 78 78 0 0 0 162.45 269 Z"/>
-    <path class="seg" d="M 56.79 130 A 200 200 0 0 1 230 30 L 230 152 A 78 78 0 0 0 162.45 191 Z"/>
-    <text class="seg-num" x="300" y="98" text-anchor="middle">01</text>
-    <text class="seg-label" x="300" y="115" text-anchor="middle">Vision &amp;</text>
-    <text class="seg-label" x="300" y="131" text-anchor="middle">Leadership</text>
-    <text class="seg-num" x="370" y="220" text-anchor="middle">02</text>
-    <text class="seg-label" x="370" y="237" text-anchor="middle">Operational</text>
-    <text class="seg-label" x="370" y="253" text-anchor="middle">Design</text>
-    <text class="seg-num" x="300" y="338" text-anchor="middle">03</text>
-    <text class="seg-label" x="300" y="355" text-anchor="middle">People &amp;</text>
-    <text class="seg-label" x="300" y="371" text-anchor="middle">Capabilities</text>
-    <text class="seg-num" x="160" y="338" text-anchor="middle">04</text>
-    <text class="seg-label" x="160" y="355" text-anchor="middle">Data</text>
-    <text class="seg-label" x="160" y="371" text-anchor="middle">Readiness</text>
-    <text class="seg-num" x="90" y="220" text-anchor="middle">05</text>
-    <text class="seg-label" x="90" y="237" text-anchor="middle">AI</text>
-    <text class="seg-label" x="90" y="253" text-anchor="middle">Governance</text>
-    <text class="seg-num" x="160" y="98" text-anchor="middle">06</text>
-    <text class="seg-label" x="160" y="115" text-anchor="middle">Results &amp;</text>
-    <text class="seg-label" x="160" y="131" text-anchor="middle">Value Delivery</text>
-    <circle class="center-bg" cx="230" cy="230" r="74"/>
-    <text class="center-text" x="230" y="222" text-anchor="middle" font-size="13.5" font-weight="500" letter-spacing="1.5">AI</text>
-    <text class="center-text" x="230" y="244" text-anchor="middle" font-size="15" font-weight="500" letter-spacing="0.5">READINESS</text>
   </svg>`;
 }
 

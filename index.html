@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Readiness Assessment - Fresh Strategy</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%232F1541'/%3E%3Ctext x='32' y='42' font-family='Helvetica,Arial,sans-serif' font-size='26' font-weight='700' text-anchor='middle' fill='%2388DBBD'%3EAI%3C/text%3E%3C/svg%3E">
-<meta name="description" content="Find out how ready your organisation is for AI. A short assessment across six dimensions, with an instant readiness score.">
+<meta name="description" content="Find out where your organisation stands across the six dimensions that decide whether AI delivers results. Fifteen questions, with a full report by email.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Raleway:wght@400;500;600&display=swap" rel="stylesheet">
@@ -18,26 +18,39 @@
   <!-- ============ INTRO SCREEN ============ -->
   <section class="screen screen--intro" id="intro">
     <header class="topbar">
-      <div class="brand">fresh<span class="brand-chev">strategy</span></div>
+      <img class="brand-logo" src="logo.png" alt="Fresh Strategy &amp; AI Solutions">
     </header>
     <div class="intro-inner">
-      <div class="intro-copy">
-        <p class="eyebrow">AI Readiness Assessment</p>
-        <h1>How ready is your organisation for AI?</h1>
-        <p class="lede">Fifteen questions across six dimensions. You get a readiness score,
-          your strongest and weakest areas, and where to focus next.
-          Takes about four minutes.</p>
-        <button class="btn btn--primary btn--lg" id="startBtn">Get my readiness score</button>
-        <p class="intro-meta">Six dimensions · 15 questions · instant result</p>
+      <p class="eyebrow">AI Readiness Assessment</p>
+      <h1>How ready is your organisation for AI?</h1>
+      <p class="lede">Find out where your organisation stands across the six dimensions
+        that decide whether AI delivers results.</p>
+
+      <div class="expect">
+        <div class="expect-item">
+          <div class="expect-num" aria-hidden="true">1</div>
+          <p><b>Fifteen questions,</b> less than ten minutes.</p>
+        </div>
+        <div class="expect-item">
+          <div class="expect-num" aria-hidden="true">2</div>
+          <p><b>Answer for where you are today,</b> not where you plan to be.</p>
+        </div>
+        <div class="expect-item">
+          <div class="expect-num" aria-hidden="true">3</div>
+          <p><b>See your score immediately,</b> with a full report by email.</p>
+        </div>
       </div>
-      <div class="intro-visual" id="introVisual"></div>
+
+      <button class="btn btn--primary btn--lg" id="startBtn">Get my readiness score</button>
+      <p class="fineprint">We store your answers to prepare your results. No third parties,
+        and you can stop at any time. <a href="https://www.freshstrategy.ch/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></p>
     </div>
   </section>
 
   <!-- ============ WIZARD SCREEN ============ -->
   <section class="screen screen--wizard" id="wizard" hidden>
     <header class="topbar topbar--wizard">
-      <div class="brand">fresh<span class="brand-chev">strategy</span></div>
+      <img class="brand-logo" src="logo.png" alt="Fresh Strategy &amp; AI Solutions">
       <div class="topbar-progress">
         <span id="progressLabel" class="topbar-progress-label"></span>
       </div>
@@ -74,7 +87,7 @@
   <!-- ============ RESULTS SCREEN ============ -->
   <section class="screen screen--results" id="results" hidden>
     <header class="topbar">
-      <div class="brand">fresh<span class="brand-chev">strategy</span></div>
+      <img class="brand-logo" src="logo.png" alt="Fresh Strategy &amp; AI Solutions">
     </header>
     <div class="results-inner" id="resultsInner"></div>
   </section>
