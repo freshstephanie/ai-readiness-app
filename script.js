@@ -248,7 +248,7 @@ function render() {
     const qNum = STEPS.slice(0, current + 1).filter(s => s.kind === "maturity").length;
     el("progressLabel").textContent = `Question ${qNum} of 15`;
   } else if (step.kind === "choice") {
-    el("progressLabel").textContent = "About your organisation";
+    el("progressLabel").textContent = "";
   } else {
     el("progressLabel").textContent = "Last step";
   }
