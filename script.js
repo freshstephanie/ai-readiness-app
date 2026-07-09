@@ -212,6 +212,22 @@ el("startBtn").addEventListener("click", () => {
   window.scrollTo(0, 0);
 });
 
+/* Greyscale radar preview beside the expectations (approved mock 2026-07-09).
+   Decorative sample data only — uneven on purpose so it reads as a diagnosis,
+   not decoration. The container is aria-hidden; greyscale filter lives in CSS. */
+const introRadar = el("introRadar");
+if (introRadar) {
+  const SAMPLE_DIMS = [
+    { short: "Vision",     pct: 72 },
+    { short: "Operations", pct: 55 },
+    { short: "People",     pct: 63 },
+    { short: "Data",       pct: 38 },
+    { short: "Governance", pct: 50 },
+    { short: "Results",    pct: 45 },
+  ];
+  introRadar.innerHTML = radarSVG(SAMPLE_DIMS);
+}
+
 /* ============================================================
    Stepper
    ============================================================ */
