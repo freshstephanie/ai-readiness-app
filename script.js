@@ -530,6 +530,7 @@ function renderResults(s) {
       <p class="result-score-line"><b>${s.pct}%</b> ready</p>
       <p class="result-discuss"><a href="https://calendar.app.google/JqRL5oLcV3M5N4rb9" target="_blank" rel="noopener">Discuss these results with us</a></p>
       <p class="result-blurb">${s.tier.blurb}</p>
+      <p class="submit-note">${esc(submitNoteText())}</p>
     </div>
 
     <div class="result-panel">
@@ -564,7 +565,6 @@ function renderResults(s) {
       <a class="btn btn--primary btn--lg" href="https://calendar.app.google/JqRL5oLcV3M5N4rb9" target="_blank" rel="noopener">Discuss these results with us</a>
     </div>
 
-    <p class="submit-note">${esc(submitNoteText())}</p>
     <div class="result-foot"><button id="restartBtn">Answer differently? Retake the assessment</button></div>
   `;
   // animate bars in
@@ -609,7 +609,7 @@ function radarSVG(dims) {
   }).join("");
 
   return `<svg viewBox="-55 -8 410 316" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Radar chart of your six dimension scores">
-    <style>.radar-lbl{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;fill:#2F1541;}</style>
+    <style>.radar-lbl{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;fill:#2F1541;}</style>
     ${rings}${spokes}
     <polygon points="${dataPts}" fill="#88DBBD" fill-opacity="0.45" stroke="#2F1541" stroke-width="2"/>
     ${dots}${labels}

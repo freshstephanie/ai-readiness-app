@@ -60,7 +60,12 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
 }
 .btn--primary { background: var(--mint); color: var(--purple); box-shadow: var(--shadow-sm); }
 .btn--primary:hover:not(:disabled) { background: var(--green); transform: translateY(-1px); }
-.btn--primary:disabled { background: var(--line); color: var(--purple-70); cursor: not-allowed; }
+/* disabled = hollow grey outline, nothing like the solid mint enabled state (audit 2026-07-09 #6);
+   inset shadow instead of a border so the button doesn't change size when it enables */
+.btn--primary:disabled {
+  background: var(--off-white); color: #98939F;
+  box-shadow: inset 0 0 0 1.5px var(--line); cursor: not-allowed;
+}
 .btn--lg { padding: 16px 40px; font-size: 1.08rem; }
 .btn--ghost {
   background: transparent; color: var(--purple);
@@ -84,7 +89,7 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
   max-width: 880px; margin: 0 auto; width: 100%;
 }
 .eyebrow {
-  text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.78rem;
+  text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.82rem;
   font-weight: 600; color: var(--mint-text); margin: 0 0 18px;
 }
 .intro-inner h1 {
@@ -211,10 +216,10 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
   box-shadow: 0 0 0 1px var(--mint);
 }
 .answer-stage {
-  flex: none; width: 92px;
+  flex: none; width: 110px; /* fits ESTABLISHED at the 12.8px chip size */
 }
 .stage-label {
-  display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+  display: inline-block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--purple-70);
   background: var(--off-white); border: 1px solid var(--line);
   border-radius: 6px; padding: 3px 8px;
@@ -232,7 +237,7 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .field { display: flex; flex-direction: column; gap: 7px; }
 .field--full { grid-column: 1 / -1; }
-.field label { font-size: 0.85rem; font-weight: 600; color: var(--purple); }
+.field label { font-size: 0.9rem; font-weight: 600; color: var(--purple); }
 .field input {
   font-family: inherit; font-size: 1rem; color: var(--charcoal);
   background: var(--white); border: 1.5px solid var(--line); border-radius: var(--radius-sm);
@@ -263,7 +268,7 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
   padding: clamp(8px, 2vw, 24px) clamp(20px, 5vw, 56px) 80px;
 }
 .result-hero { text-align: center; padding: clamp(12px, 3vw, 28px) 0 clamp(24px, 4vw, 40px); }
-.result-eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.78rem; font-weight: 600; color: var(--mint-text); margin: 0 0 14px; }
+.result-eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.82rem; font-weight: 600; color: var(--mint-text); margin: 0 0 14px; }
 .result-tier-name {
   font-size: clamp(2rem, 6vw, 3.4rem); color: var(--purple); margin: 0 0 6px;
   font-weight: 600; letter-spacing: -0.025em;
@@ -321,8 +326,10 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
 .result-cta .btn--primary { background: var(--mint); }
 .result-cta .btn--primary:hover { background: var(--green); }
 .result-foot { text-align: center; margin-top: 26px; }
-.result-foot button { background: none; border: none; color: var(--purple-70); cursor: pointer; font-family: inherit; font-size: 0.9rem; text-decoration: underline; }
+.result-foot button { background: none; border: none; color: var(--purple-70); cursor: pointer; font-family: inherit; font-size: 0.94rem; text-decoration: underline; }
 .submit-note { text-align: center; font-size: 0.97rem; color: var(--purple-70); margin-top: 18px; }
+/* confirmation lives in the hero (audit 2026-07-09 #5): close the contact gate's promise where it's read */
+.result-hero .submit-note { max-width: 40em; margin: 14px auto 0; }
 
 /* ============================================================
    RESPONSIVE
@@ -355,8 +362,8 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
   .answers--grid { grid-template-columns: 1fr; }
   .contact-grid { grid-template-columns: 1fr; }
   .answer { padding: 14px; gap: 10px; }
-  .answer-stage { width: 78px; }
-  .stage-label { font-size: 0.72rem; padding: 3px 6px; }
+  .answer-stage { width: 107px; }
+  .stage-label { font-size: 0.8rem; padding: 3px 6px; }
   .qcard-head { gap: 10px; }
 }
 
