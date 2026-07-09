@@ -363,9 +363,11 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
 }
 
 @media (max-width: 860px) {
-  /* Intro: single column, radar preview after the expectation items */
-  .intro-columns { grid-template-columns: 1fr; gap: 28px; max-width: 480px; }
-  .intro-preview { max-width: 250px; margin: 0 auto; }
+  /* Intro: dissolve the grid so the radar preview drops below the CTA
+     and the button stays above the fold on small screens */
+  .intro-columns { display: contents; }
+  .intro-columns .expect { max-width: 480px; margin: 0 0 clamp(28px, 4vw, 40px); }
+  .intro-preview { max-width: 250px; margin: 26px auto 0; order: 1; }
 
   .wizard-body { grid-template-columns: 1fr; max-width: 640px; }
   /* Stepper collapses to a slim horizontal strip */
