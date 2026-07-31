@@ -151,6 +151,17 @@ const DIMENSIONS = [
   { id: "results",    label: "Results & Value Delivery",short: "Results",    keys: ["results", "measure_value"] },
 ];
 
+/* Tie-break order for the weakest dimension, per tier — mirrors the deployed
+   Apps Script prioritySequences exactly so screen and emailed report always
+   name the same focus dimension. */
+const TIE_PRIORITY = {
+  Foundation:  ["vision", "people", "operations", "data", "governance", "results"],
+  Developing:  ["vision", "operations", "people", "data", "governance", "results"],
+  Established: ["operations", "people", "data", "vision", "governance", "results"],
+  Advanced:    ["data", "governance", "operations", "people", "results", "vision"],
+  Leading:     ["data", "governance", "operations", "people", "vision", "results"],
+};
+
 const DIM_FOCUS = {
   vision:     "Set a clear, written AI direction tied to a growth or efficiency target, and get leadership visibly behind it. When people know where AI is heading and why, adoption follows.",
   operations: "Move from scattered tools to redesigned workflows. Pick one or two high-value processes, rebuild them around AI, then create a repeatable way to scale what works.",
@@ -468,9 +479,17 @@ function computeScores() {
   // Overall = equal-weighted dimensions (mean of the six dimension means x20).
   // EXACTLY mirrors the deployed Apps Script so screen and emailed report agree.
   const pct = Math.round(dimMeans.reduce((a, b) => a + b, 0) / dimMeans.length * 20);
-  const weakest = dims.slice().sort((a, b) => a.pct - b.pct || a.score - b.score)[0];
+  const tier = tierFor(pct);
+  // Weakest = lowest dimension mean; ties broken by the per-tier matrix
+  // (TIE_PRIORITY), exactly like the deployed Apps Script. Means are compared
+  // exactly via cross-multiplication (score/max as integer fractions).
+  const cmp = (a, b) => a.score * b.max - b.score * a.max;
+  const lowest = dims.reduce((m, d) => (cmp(d, m) < 0 ? d : m), dims[0]);
+  const tiedIds = dims.filter(d => cmp(d, lowest) === 0).map(d => d.id);
+  const weakestId = TIE_PRIORITY[tier.name].find(id => tiedIds.includes(id));
+  const weakest = dims.find(d => d.id === weakestId);
   const strongest = dims.slice().sort((a, b) => b.pct - a.pct || b.score - a.score)[0];
-  return { total, maxTotal, pct, tier: tierFor(pct), dims, weakest, strongest };
+  return { total, maxTotal, pct, tier, dims, weakest, strongest };
 }
 
 /* ============================================================
