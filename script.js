@@ -37,8 +37,6 @@ const SECTIONS = [
   { id: "results",    label: "Results & Value Delivery" },
 ];
 
-const STAGE_LABELS = ["Foundation", "Developing", "Established", "Advanced", "Leading"];
-
 /* ---------- Background choice questions (exact option strings) ---------- */
 const CHOICE = {
   industry: [
@@ -304,7 +302,7 @@ function renderContact(container) {
   el("qIndex").textContent = "";
   el("qStem").textContent = "Last step - where should we send your results?";
   const tier = computeScores().tier.name;
-  el("qHint").innerHTML = `Your result is ready: ${esc(tier)}. Enter your details to see the full breakdown. All fields required. We store your answers to prepare your results. <a href="https://www.freshstrategy.ch/privacy-policy" target="_blank" rel="noopener">No third parties.</a>`;
+  el("qHint").innerHTML = `Your result is ready: ${esc(tier)}. Enter your details to see the full breakdown. All fields required. We store your answers to prepare your results. <a href="https://www.freshstrategy.ai/privacy-policy" target="_blank" rel="noopener">No third parties.</a>`;
   const c = state.contact;
   container.innerHTML = `
     <div class="contact-grid">
@@ -322,22 +320,86 @@ function renderContact(container) {
       </div>
       <div class="field field--full">
         <label for="f_email">Work email</label>
-        <input id="f_email" type="email" autocomplete="email" value="${esc(c.email)}">
+        <input id="f_email" type="email" autocomplete="email" aria-describedby="emailSuggest" value="${esc(c.email)}">
         <span class="field-error" id="emailErr"></span>
+        <span class="field-suggest" id="emailSuggest" role="status" aria-live="polite" hidden></span>
       </div>
     </div>`;
   const bind = (idKey, elId) => {
     const input = el(elId);
     input.addEventListener("input", () => {
       c[idKey] = input.value;
-      if (idKey === "email") el("emailErr").textContent = "";
+      if (idKey === "email") { el("emailErr").textContent = ""; onEmailTyped(); }
       updateNextEnabled();
     });
   };
   bind("first_name", "f_first"); bind("last_name", "f_last");
   bind("company", "f_company"); bind("email", "f_email");
   el("f_email").addEventListener("blur", () => {
-    if (c.email.trim() && !validEmail(c.email)) el("emailErr").textContent = "Please enter a valid email.";
+    clearTimeout(suggestTimer);
+    if (c.email.trim() && !validEmail(c.email)) { el("emailErr").textContent = "Please enter a valid email."; return; }
+    offerSuggestion(emailSuggestion(c.email));
+  });
+}
+
+/* ---------- Email suggestion state ----------
+   The prompt has to arrive before the reader can submit a typo, not after they
+   happen to leave the field: the last thing many people do at this gate is
+   type the address and hit the button, so a blur-only prompt never fires. */
+
+// The suggestion the reader has already dealt with, by dismissing it or by
+// pressing on past it. Never re-interrupt for the same address.
+let suggestionSettled = "";
+let suggestTimer = null;
+
+function onEmailTyped() {
+  clearTimeout(suggestTimer);
+  hideSuggestion();
+  // Wait for a pause in typing, otherwise "alex@gmail.com" gets nagged at
+  // every keystroke on its way through "alex@gmai", "alex@gmail.c" and so on.
+  suggestTimer = setTimeout(() => offerSuggestion(emailSuggestion(state.contact.email)), 700);
+}
+
+function offerSuggestion(suggested) {
+  if (!suggested || suggested === suggestionSettled) { hideSuggestion(); return; }
+  showSuggestion(suggested);
+}
+
+function hideSuggestion() {
+  const box = el("emailSuggest");
+  if (box) { box.hidden = true; box.innerHTML = ""; delete box.dataset.for; }
+}
+
+/* Advisory only: the reader can accept it, dismiss it, or ignore it entirely
+   and submit the address they typed. Both controls are real buttons, so the
+   whole flow is reachable by Tab and Enter; the container is a polite live
+   region so the prompt is announced when it appears mid-typing. */
+function showSuggestion(suggested) {
+  const box = el("emailSuggest");
+  if (!box) return;
+  if (!suggested) { hideSuggestion(); return; }
+  // Already offering this exact address: leave the DOM alone. Rebuilding it
+  // would destroy the buttons mid-interaction - moving focus to one of them
+  // blurs the input, and the blur handler lands right back here.
+  if (!box.hidden && box.dataset.for === suggested) return;
+  box.hidden = false;
+  box.dataset.for = suggested;
+  box.innerHTML =
+    `Did you mean <button type="button" class="suggest-btn" id="emailSuggestBtn">${esc(suggested)}</button>? ` +
+    `<button type="button" class="suggest-dismiss" id="emailSuggestNo">Keep mine</button>`;
+  el("emailSuggestBtn").addEventListener("click", () => {
+    state.contact.email = suggested;
+    el("f_email").value = suggested;
+    el("emailErr").textContent = "";
+    suggestionSettled = "";           // corrected address: nothing left to warn about
+    hideSuggestion();
+    updateNextEnabled();
+    el("f_email").focus();
+  });
+  el("emailSuggestNo").addEventListener("click", () => {
+    suggestionSettled = suggested;    // asked and answered; do not interrupt again
+    hideSuggestion();
+    el("f_email").focus();
   });
 }
 
@@ -384,9 +446,11 @@ function renderMaturity(step, container) {
   container.setAttribute("role", "radiogroup");
   container.setAttribute("aria-label", q.stem);
   const selected = state.maturity[step.key];
+  // No maturity chip on the option: showing the answer key invites a defensive
+  // reader to inflate, then discount their own result. Order, option text,
+  // index and the submitted payload are all unchanged.
   container.innerHTML = q.opts.map((opt, i) => `
     <button class="answer ${selected === i ? "is-selected" : ""}" role="radio" aria-checked="${selected === i}" data-idx="${i}">
-      <span class="answer-stage"><span class="stage-label">${STAGE_LABELS[i]}</span></span>
       <span class="answer-text">${esc(displayText(opt))}</span>
       <span class="answer-tick">${tickSVG()}</span>
     </button>`).join("");
@@ -428,9 +492,22 @@ function autoAdvance() {
 function goNext() {
   clearTimeout(advanceTimer); // else Enter within the auto-advance window double-advances
   if (!isStepAnswered()) return;
-  if (STEPS[current].kind === "contact" && !validEmail(state.contact.email)) {
-    el("emailErr").textContent = "Please enter a valid email.";
-    return;
+  if (STEPS[current].kind === "contact") {
+    if (!validEmail(state.contact.email)) {
+      el("emailErr").textContent = "Please enter a valid email.";
+      return;
+    }
+    // Last line of defence, for the reader who types the address and goes
+    // straight for the button. Stop once, put them back in the email field
+    // with the prompt showing; a second press submits what they typed.
+    clearTimeout(suggestTimer);
+    const suggested = emailSuggestion(state.contact.email);
+    if (suggested && suggested !== suggestionSettled) {
+      suggestionSettled = suggested;
+      showSuggestion(suggested);
+      el("f_email").focus();
+      return;
+    }
   }
   if (current === TOTAL_Q - 1) { finish(); return; }
   current++;
@@ -659,10 +736,66 @@ function tickSVG() {
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((v || "").trim()); }
 
+/* ---------- Email domain typo detection ----------
+   `alex@gmial.com` is a valid address by the regex above, so it passes the
+   gate, the report is sent into a void and the reader concludes we never sent
+   it. This suggests a correction; it never blocks. A domain we do not
+   recognise is assumed correct, because most respondents are on corporate
+   domains we have never seen. */
+const KNOWN_DOMAINS = [
+  "gmail.com", "googlemail.com", "outlook.com", "hotmail.com", "live.com",
+  "yahoo.com", "yahoo.co.uk", "icloud.com", "me.com", "aol.com", "msn.com",
+  "protonmail.com", "proton.me", "gmx.de", "gmx.ch", "gmx.net", "web.de",
+  "bluewin.ch", "sunrise.ch", "hispeed.ch",
+];
+
+function editDistance(a, b) {
+  // Damerau-Levenshtein: transposition is one edit, so gmial/gmail is
+  // distance 1, which is the single most common way to mistype it.
+  const m = a.length, n = b.length;
+  const d = Array.from({ length: m + 1 }, (_, i) =>
+    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + cost);
+      }
+    }
+  }
+  return d[m][n];
+}
+
+/** The corrected address, or "" when the domain looks fine or unfamiliar. */
+function emailSuggestion(value) {
+  const v = (value || "").trim();
+  if (!validEmail(v)) return "";
+  const at = v.lastIndexOf("@");
+  const local = v.slice(0, at);
+  const domain = v.slice(at + 1).toLowerCase();
+  if (KNOWN_DOMAINS.indexOf(domain) !== -1) return "";   // already correct
+
+  let best = "", bestDist = Infinity;
+  for (const known of KNOWN_DOMAINS) {
+    // A one-character domain is not a near-miss of a nine-character one.
+    if (Math.abs(known.length - domain.length) > 2) continue;
+    const dist = editDistance(domain, known);
+    if (dist < bestDist) { bestDist = dist; best = known; }
+  }
+  // Short domains get one edit of latitude, longer ones two. Anything further
+  // away is treated as a real domain we simply do not know.
+  const allowed = best.length <= 9 ? 1 : 2;
+  if (bestDist === 0 || bestDist > allowed) return "";
+  return local + "@" + best;
+}
+
 /* keyboard: Enter advances */
 document.addEventListener("keydown", e => {
-  // ignore Enter while an answer card has focus: the button's own activation
-  // handles it, and select+advance in one keypress would skip the question
-  if (document.activeElement && document.activeElement.classList.contains("answer")) return;
+  // ignore Enter while one of these has focus: the button's own activation
+  // handles it, and acting twice on one keypress would either skip a question
+  // or submit the moment the reader accepts an email correction
+  const held = ["answer", "suggest-btn", "suggest-dismiss"];
+  if (document.activeElement && held.some(c => document.activeElement.classList.contains(c))) return;
   if (e.key === "Enter" && !wizardScreen.hidden && !el("nextBtn").disabled) goNext();
 });

@@ -37,7 +37,7 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
-h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
+h1, h2, h3, .eyebrow, .btn, .qcard-index {
   font-family: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -236,16 +236,6 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
   border-color: var(--mint); background: var(--mint-soft);
   box-shadow: 0 0 0 1px var(--mint);
 }
-.answer-stage {
-  flex: none; width: 110px; /* fits ESTABLISHED at the 12.8px chip size */
-}
-.stage-label {
-  display: inline-block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--purple-70);
-  background: var(--off-white); border: 1px solid var(--line);
-  border-radius: 6px; padding: 3px 8px;
-}
-.answer.is-selected .stage-label { color: var(--purple); border-color: var(--mint); background: var(--white); }
 .answer-text { flex: 1; line-height: 1.4; }
 .answer-tick {
   flex: none; width: 22px; height: 22px; border-radius: 50%;
@@ -267,6 +257,19 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
 .field input:focus { outline: none; border-color: var(--mint); box-shadow: 0 0 0 3px var(--mint-soft); }
 .field input:hover { border-color: #cfc9c0; }
 .field-error { font-size: 0.78rem; color: #b4462f; min-height: 0; }
+.field-suggest { font-size: 0.82rem; color: var(--purple-70); }
+.suggest-btn {
+  font-family: inherit; font-size: inherit; font-weight: 600;
+  color: var(--purple); background: none; border: none; padding: 0;
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer;
+}
+.suggest-btn:hover { color: var(--charcoal); }
+.suggest-dismiss {
+  font-family: inherit; font-size: inherit; color: var(--purple-70);
+  background: none; border: none; padding: 0 0 0 6px;
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer;
+}
+.suggest-dismiss:hover { color: var(--charcoal); }
 
 /* ---------- Nav row ---------- */
 .nav-row { display: flex; align-items: center; gap: 16px; margin-top: 34px; }
@@ -389,8 +392,6 @@ h1, h2, h3, .eyebrow, .btn, .stage-label, .qcard-index {
   .answers--grid { grid-template-columns: 1fr; }
   .contact-grid { grid-template-columns: 1fr; }
   .answer { padding: 14px; gap: 10px; }
-  .answer-stage { width: 107px; }
-  .stage-label { font-size: 0.8rem; padding: 3px 6px; }
   .qcard-head { gap: 10px; }
 }
 
